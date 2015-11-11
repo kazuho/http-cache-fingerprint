@@ -4,8 +4,8 @@
 
 Network Working Group                                             K. Oku
 Internet-Draft                                            DeNA Co., Ltd.
-Intended status: Informational                             July 05, 2009
-Expires: January 6, 2010
+Intended status: Informational                         November 12, 2015
+Expires: May 15, 2016
 
 
                      Cache fingerprinting for HTTP
@@ -33,11 +33,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on January 6, 2010.
+   This Internet-Draft will expire on May 15, 2016.
 
 Copyright Notice
 
-   Copyright (c) 2009 IETF Trust and the persons identified as the
+   Copyright (c) 2015 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Oku                      Expires January 6, 2010                [Page 1]
+Oku                       Expires May 15, 2016                  [Page 1]
 
-Internet-Draft          HTTP cache fingerprinting              July 2009
+Internet-Draft          HTTP cache fingerprinting          November 2015
 
 
 Table of Contents
@@ -109,4 +109,4 @@ Author's Address
 
 
 
-Oku                      Expires January 6, 2010                [Page 2]
+Oku                       Expires May 15, 2016                  [Page 2]
