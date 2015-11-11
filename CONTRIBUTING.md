@@ -1,24 +1,4 @@
-# Cache fingerprinting for HTTP
-
-This is the working area for the Individual internet-draft, "Cache fingerprinting for HTTP".
-
-* [Editor's copy](https://kazuho.github.io/http-cache-fingerprint/)
-* [Individual Draft] (https://tools.ietf.org/html/draft-kazuho-http-cache-fingerprint)
-
-
-## Building the Draft
-
-Formatted text and HTML versions of the draft can be built using `make`.
-
-```sh
-$ make
-```
-
-This requires that you have the necessary software installed.  See [the
-instructions](https://github.com/martinthomson/i-d-template/blob/master/doc/SETUP.md).
-
-
-## Contributing
+# Contributing
 
 Before submitting feedback, please familiarize yourself with our current issues
 list and review the [working group
