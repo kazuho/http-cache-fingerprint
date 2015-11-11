@@ -1,0 +1,112 @@
+
+
+
+
+Network Working Group                                             K. Oku
+Internet-Draft                                            DeNA Co., Ltd.
+Intended status: Informational                             July 05, 2009
+Expires: January 6, 2010
+
+
+                     Cache fingerprinting for HTTP
+               draft-kazuho-http-cache-fingerprint-latest
+
+Abstract
+
+   This memo introduces HTTP headers for cache fingerprinting.
+
+   The fingerprint can be used by the server to determine the responses
+   it should pre-emptively send (or "push") to client.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at http://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on January 6, 2010.
+
+Copyright Notice
+
+   Copyright (c) 2009 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+
+
+
+Oku                      Expires January 6, 2010                [Page 1]
+
+Internet-Draft          HTTP cache fingerprinting              July 2009
+
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+     1.1.  Notational Conventions  . . . . . . . . . . . . . . . . .   2
+   2.  The Cache-Fingerprint-Key Header Field  . . . . . . . . . . .   2
+   3.  The Cache-Fingerprint Header Field  . . . . . . . . . . . . .   2
+   4.  Normative References  . . . . . . . . . . . . . . . . . . . .   2
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   2
+
+1.  Introduction
+
+   blab blah blah
+
+1.1.  Notational Conventions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in [RFC2119].
+
+2.  The Cache-Fingerprint-Key Header Field
+
+   blab blah blah
+
+3.  The Cache-Fingerprint Header Field
+
+   blah blah blah
+
+4.  Normative References
+
+   [RFC7230]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
+              Protocol (HTTP/1.1): Message Syntax and Routing", RFC
+              7230, DOI 10.17487/RFC7230, June 2014,
+              <http://www.rfc-editor.org/info/rfc7230>.
+
+   [RFC7540]  Belshe, M., Peon, R., and M. Thomson, Ed., "Hypertext
+              Transfer Protocol Version 2 (HTTP/2)", RFC 7540, DOI
+              10.17487/RFC7540, May 2015,
+              <http://www.rfc-editor.org/info/rfc7540>.
+
+Author's Address
+
+   Kazuho Oku
+   DeNA Co., Ltd.
+
+   Email: kazuhooku@gmail.com
+
+
+
+
+
+
+Oku                      Expires January 6, 2010                [Page 2]
