@@ -2,7 +2,7 @@
 title: Cache fingerprinting for HTTP
 abbrev: HTTP cache fingerprinting
 docname: draft-kazuho-http-cache-fingerprint-latest
-date: 2009-07-05
+date: 2015-11-12
 category: info
 
 ipr: trust200902
