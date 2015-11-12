@@ -21,8 +21,25 @@ author:
     email: kazuhooku@gmail.com
 
 normative:
+  RFC2119:
+  RFC4648:
   RFC7230:
   RFC7540:
+  Golomb:
+    title: Run-length codings
+    author:
+      ins: S. Golomb
+      name: Solomon Wolf Golomb
+    date: 1966-07
+    seriesinfo: IEEE Transactions on Information Theory 12(3)
+  Rice:
+    title: Some Practical Universal Noiseless Coding Techniques
+    author:
+      ins: R. Rice
+      name: Robert F. Rice
+      organization: Jet Propulsion Laboratory
+    date: 1979-03
+    seriesinfo: JPL Publication 79-22
 
 informative:
 
@@ -36,7 +53,10 @@ The fingerprint can be used by the server to determine the responses it should p
 
 # Introduction
 
-blab blah blah
+Server push introduced in HTTP/2 [RFC7540] allows a server to speculatively send data to a client that the server anticipates the client will need.
+But it is hard to make such anticipations without the knowledge of what the client already has in its cache.
+
+This document specifies a set of HTTP headers that can be used by the endpoints to communicate the cache state of the client, so that the server can make a good guess on what to push.
 
 ## Notational Conventions
 
@@ -46,8 +66,53 @@ interpreted as described in [RFC2119].
 
 # The Cache-Fingerprint-Key Header Field {#cache-fingerprint-key}
 
-blab blah blah
+The "Cache-Fingerprint-Key" HTTP response header field describes the fingerprint key of the content as a decimal number.
 
-# The Cache-Fingerprint Header Field {#cahce-fingerprint}
+~~~
+  Cache-Fingerprint-Key = 1*DIGIT
+~~~
 
-blah blah blah
+An example is
+
+~~~
+  Cache-Fingerprint-Key: 12345
+~~~
+
+A server MAY send the header field in a cacheable response.
+
+# The Cache-Fingerprint Header Field {#cache-fingerprint}
+
+A user agent sends an aggregation of fingerprint keys found in cached responses sent from the origin server using the "Cache-Fingerprint" header.
+
+~~~
+  Cache-Fingerprint: *( ALPHA / DIGIT / "-" / "_") *"="
+~~~
+
+A user agent SHOULD send the header even if no response with fingerprint keys are being cached, as an indication to the server that it is capable of collecting and sending a cache fingerprint.
+
+When a user agent sends a "Cache-Fingerprint" header field, the value MUST be computed using the following steps.
+
+1. collect the values of "Cache-Fingerprint-Key" header fields in the cached HTTP responses sent from the origin server to which the header field is going to be sent
+2. if number of collected keys is zero (0), go to step 9
+3. algebraically sort the collected keys
+4. determine the parameter of Golomb-Rice coding to be used [Golomb].[Rice].  The value MUST be a power of two (2), between one (1) to 2147483648.
+5. calculate log2 of the parameter determined in step 4 as a 5-bit value
+6. encode the first key using Golomb-Rice coding with parameter determined in step 4
+7. if number of collected keys is one (1), go to step 9
+8. for every collected key expect for the first key, encode the delta from the previous key minus one (1) using Golom-Rice coding with parameter determined in step 4
+9. concatenate the result of step 4, 6, 8 and encode the result using base64url [RFC4648].  Padding of base64url MAY be omitted.
+
+As an example, when none of the cached responses from the origin server contained a "Cache-Fingerprint-Key" header, then the  "Cache-Fingerprint" header field will be:
+
+~~~
+  Cache-Fingerprint:
+~~~
+
+Or if two cached responses contained the header with values 115 and 923, the header field will be as follows, if 512 was selected as the parameter for Golom-Rice coding and if padding of base64url was omitted.
+
+~~~
+  Cache-Fingerprint: Qc+J/w
+~~~
+
+
+An implementation of the steps above can be found at https://github.com/kazuho/golombset/.
