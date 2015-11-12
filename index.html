@@ -512,16 +512,70 @@ ul.toc a:first-child {
   </ul>
 
   <h1 id="rfc.section.1"><a href="#rfc.section.1">1.</a> <a href="#introduction" id="introduction">Introduction</a></h1>
-<p id="rfc.section.1.p.1">blab blah blah</p>
+<p id="rfc.section.1.p.1">Server push introduced in HTTP/2 <a href="#RFC7540">[RFC7540]</a> allows a server to speculatively send data to a client that the server anticipates the client will need.  But it is hard to make such anticipations without the knowledge of what the client already has in its cache.</p>
+<p id="rfc.section.1.p.2">This document specifies a set of HTTP headers that can be used by the endpoints to communicate the cache state of the client, so that the server can make a good guess on what to push.</p>
 <h1 id="rfc.section.1.1"><a href="#rfc.section.1.1">1.1.</a> <a href="#notational-conventions" id="notational-conventions">Notational Conventions</a></h1>
-<p id="rfc.section.1.1.p.1">The key words &#8220;MUST&#8221;, &#8220;MUST NOT&#8221;, &#8220;REQUIRED&#8221;, &#8220;SHALL&#8221;, &#8220;SHALL NOT&#8221;, &#8220;SHOULD&#8221;, &#8220;SHOULD NOT&#8221;, &#8220;RECOMMENDED&#8221;, &#8220;MAY&#8221;, and &#8220;OPTIONAL&#8221; in this document are to be interpreted as described in [RFC2119].</p>
+<p id="rfc.section.1.1.p.1">The key words &#8220;MUST&#8221;, &#8220;MUST NOT&#8221;, &#8220;REQUIRED&#8221;, &#8220;SHALL&#8221;, &#8220;SHALL NOT&#8221;, &#8220;SHOULD&#8221;, &#8220;SHOULD NOT&#8221;, &#8220;RECOMMENDED&#8221;, &#8220;MAY&#8221;, and &#8220;OPTIONAL&#8221; in this document are to be interpreted as described in <a href="#RFC2119">[RFC2119]</a>.</p>
 <h1 id="rfc.section.2"><a href="#rfc.section.2">2.</a> <a href="#cache-fingerprint-key" id="cache-fingerprint-key">The Cache-Fingerprint-Key Header Field</a></h1>
-<p id="rfc.section.2.p.1">blab blah blah</p>
-<h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> <a href="#cahce-fingerprint" id="cahce-fingerprint">The Cache-Fingerprint Header Field</a></h1>
-<p id="rfc.section.3.p.1">blah blah blah</p>
+<p id="rfc.section.2.p.1">The &#8220;Cache-Fingerprint-Key&#8221; HTTP response header field describes the fingerprint key of the content as a decimal number.</p>
+<pre>
+  Cache-Fingerprint-Key = 1*DIGIT
+</pre>
+<p id="rfc.section.2.p.2">An example is</p>
+<pre>
+  Cache-Fingerprint-Key: 12345
+</pre>
+<p id="rfc.section.2.p.3">A server MAY send the header field in a cacheable response.</p>
+<h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> <a href="#cache-fingerprint" id="cache-fingerprint">The Cache-Fingerprint Header Field</a></h1>
+<p id="rfc.section.3.p.1">A user agent sends an aggregation of fingerprint keys found in cached responses sent from the origin server using the &#8220;Cache-Fingerprint&#8221; header.</p>
+<pre>
+  Cache-Fingerprint: *( ALPHA / DIGIT / "-" / "_") *"="
+</pre>
+<p id="rfc.section.3.p.2">A user agent SHOULD send the header even if no response with fingerprint keys are being cached, as an indication to the server that it is capable of collecting and sending a cache fingerprint.</p>
+<p id="rfc.section.3.p.3">When a user agent sends a &#8220;Cache-Fingerprint&#8221; header field, the value MUST be computed using the following steps.</p>
+<p/>
+
+<ol>
+  <li>collect the values of &#8220;Cache-Fingerprint-Key&#8221; header fields in the cached HTTP responses sent from the origin server to which the header field is going to be sent</li>
+  <li>if number of collected keys is zero (0), go to step 9</li>
+  <li>algebraically sort the collected keys</li>
+  <li>determine the parameter of Golomb-Rice coding to be used <a href="#Golomb">[Golomb]</a>.<a href="#Rice">[Rice]</a>.  The value MUST be a power of two (2), between one (1) to 2147483648.</li>
+  <li>calculate log2 of the parameter determined in step 4 as a 5-bit value</li>
+  <li>encode the first key using Golomb-Rice coding with parameter determined in step 4</li>
+  <li>if number of collected keys is one (1), go to step 9</li>
+  <li>for every collected key expect for the first key, encode the delta from the previous key minus one (1) using Golom-Rice coding with parameter determined in step 4</li>
+  <li>concatenate the result of step 4, 6, 8 and encode the result using base64url <a href="#RFC4648">[RFC4648]</a>.  Padding of base64url MAY be omitted.</li>
+</ol>
+<p id="rfc.section.3.p.5">As an example, when none of the cached responses from the origin server contained a &#8220;Cache-Fingerprint-Key&#8221; header, then the  &#8220;Cache-Fingerprint&#8221; header field will be:</p>
+<pre>
+  Cache-Fingerprint:
+</pre>
+<p id="rfc.section.3.p.6">Or if two cached responses contained the header with values 115 and 923, the header field will be as follows, if 512 was selected as the parameter for Golom-Rice coding and if padding of base64url was omitted.</p>
+<pre>
+  Cache-Fingerprint: Qc+J/w
+</pre>
+<p id="rfc.section.3.p.7">An implementation of the steps above can be found at https://github.com/kazuho/golombset/.</p>
 <h1 id="rfc.references"><a href="#rfc.references">4.</a> Normative References</h1>
 <table>
   <tbody>
+    <tr>
+      <td class="reference">
+        <b id="Golomb">[Golomb]</b>
+      </td>
+      <td class="top"><a>Golomb, S.</a>, "<a>Run-length codings</a>", IEEE Transactions on Information Theory 12(3) , July 1966.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC2119">[RFC2119]</b>
+      </td>
+      <td class="top"><a>Bradner, S.</a>, "<a href="http://tools.ietf.org/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC4648">[RFC4648]</b>
+      </td>
+      <td class="top"><a>Josefsson, S.</a>, "<a href="http://tools.ietf.org/html/rfc4648">The Base16, Base32, and Base64 Data Encodings</a>", RFC 4648, DOI 10.17487/RFC4648, October 2006.</td>
+    </tr>
     <tr>
       <td class="reference">
         <b id="RFC7230">[RFC7230]</b>
@@ -533,6 +587,12 @@ ul.toc a:first-child {
         <b id="RFC7540">[RFC7540]</b>
       </td>
       <td class="top"><a>Belshe, M.</a>, <a>Peon, R.</a> and <a>M. Thomson</a>, "<a href="http://tools.ietf.org/html/rfc7540">Hypertext Transfer Protocol Version 2 (HTTP/2)</a>", RFC 7540, DOI 10.17487/RFC7540, May 2015.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="Rice">[Rice]</b>
+      </td>
+      <td class="top"><a title="Jet Propulsion Laboratory">Rice, R.</a>, "<a>Some Practical Universal Noiseless Coding Techniques</a>", JPL Publication 79-22 , March 1979.</td>
     </tr>
   </tbody>
 </table>

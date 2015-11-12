@@ -64,12 +64,19 @@ Table of Contents
      1.1.  Notational Conventions  . . . . . . . . . . . . . . . . .   2
    2.  The Cache-Fingerprint-Key Header Field  . . . . . . . . . . .   2
    3.  The Cache-Fingerprint Header Field  . . . . . . . . . . . . .   2
-   4.  Normative References  . . . . . . . . . . . . . . . . . . . .   2
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   2
+   4.  Normative References  . . . . . . . . . . . . . . . . . . . .   4
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   4
 
 1.  Introduction
 
-   blab blah blah
+   Server push introduced in HTTP/2 [RFC7540] allows a server to
+   speculatively send data to a client that the server anticipates the
+   client will need.  But it is hard to make such anticipations without
+   the knowledge of what the client already has in its cache.
+
+   This document specifies a set of HTTP headers that can be used by the
+   endpoints to communicate the cache state of the client, so that the
+   server can make a good guess on what to push.
 
 1.1.  Notational Conventions
 
@@ -79,13 +86,106 @@ Table of Contents
 
 2.  The Cache-Fingerprint-Key Header Field
 
-   blab blah blah
+   The "Cache-Fingerprint-Key" HTTP response header field describes the
+   fingerprint key of the content as a decimal number.
+
+   Cache-Fingerprint-Key = 1*DIGIT
+
+   An example is
+
+   Cache-Fingerprint-Key: 12345
+
+   A server MAY send the header field in a cacheable response.
 
 3.  The Cache-Fingerprint Header Field
 
-   blah blah blah
+   A user agent sends an aggregation of fingerprint keys found in cached
+   responses sent from the origin server using the "Cache-Fingerprint"
+   header.
+
+   Cache-Fingerprint: *( ALPHA / DIGIT / "-" / "_") *"="
+
+
+
+
+
+Oku                       Expires May 15, 2016                  [Page 2]
+
+Internet-Draft          HTTP cache fingerprinting          November 2015
+
+
+   A user agent SHOULD send the header even if no response with
+   fingerprint keys are being cached, as an indication to the server
+   that it is capable of collecting and sending a cache fingerprint.
+
+   When a user agent sends a "Cache-Fingerprint" header field, the value
+   MUST be computed using the following steps.
+
+   1.  collect the values of "Cache-Fingerprint-Key" header fields in
+       the cached HTTP responses sent from the origin server to which
+       the header field is going to be sent
+
+   2.  if number of collected keys is zero (0), go to step 9
+
+   3.  algebraically sort the collected keys
+
+   4.  determine the parameter of Golomb-Rice coding to be used
+       [Golomb].[Rice].  The value MUST be a power of two (2), between
+       one (1) to 2147483648.
+
+   5.  calculate log2 of the parameter determined in step 4 as a 5-bit
+       value
+
+   6.  encode the first key using Golomb-Rice coding with parameter
+       determined in step 4
+
+   7.  if number of collected keys is one (1), go to step 9
+
+   8.  for every collected key expect for the first key, encode the
+       delta from the previous key minus one (1) using Golom-Rice coding
+       with parameter determined in step 4
+
+   9.  concatenate the result of step 4, 6, 8 and encode the result
+       using base64url [RFC4648].  Padding of base64url MAY be omitted.
+
+   As an example, when none of the cached responses from the origin
+   server contained a "Cache-Fingerprint-Key" header, then the "Cache-
+   Fingerprint" header field will be:
+
+   Cache-Fingerprint:
+
+   Or if two cached responses contained the header with values 115 and
+   923, the header field will be as follows, if 512 was selected as the
+   parameter for Golom-Rice coding and if padding of base64url was
+   omitted.
+
+   Cache-Fingerprint: Qc+J/w
+
+
+
+
+
+Oku                       Expires May 15, 2016                  [Page 3]
+
+Internet-Draft          HTTP cache fingerprinting          November 2015
+
+
+   An implementation of the steps above can be found at https://
+   github.com/kazuho/golombset/.
 
 4.  Normative References
+
+   [Golomb]   Golomb, S., "Run-length codings", IEEE Transactions on
+              Information Theory 12(3) , July 1966.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/
+              RFC2119, March 1997,
+              <http://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC4648]  Josefsson, S., "The Base16, Base32, and Base64 Data
+              Encodings", RFC 4648, DOI 10.17487/RFC4648, October 2006,
+              <http://www.rfc-editor.org/info/rfc4648>.
 
    [RFC7230]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
               Protocol (HTTP/1.1): Message Syntax and Routing", RFC
@@ -96,6 +196,9 @@ Table of Contents
               Transfer Protocol Version 2 (HTTP/2)", RFC 7540, DOI
               10.17487/RFC7540, May 2015,
               <http://www.rfc-editor.org/info/rfc7540>.
+
+   [Rice]     Rice, R., "Some Practical Universal Noiseless Coding
+              Techniques", JPL Publication 79-22 , March 1979.
 
 Author's Address
 
@@ -109,4 +212,13 @@ Author's Address
 
 
 
-Oku                       Expires May 15, 2016                  [Page 2]
+
+
+
+
+
+
+
+
+
+Oku                       Expires May 15, 2016                  [Page 4]
