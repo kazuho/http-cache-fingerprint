@@ -64,8 +64,9 @@ Table of Contents
      1.1.  Notational Conventions  . . . . . . . . . . . . . . . . .   2
    2.  The Cache-Fingerprint-Key Header Field  . . . . . . . . . . .   2
    3.  The Cache-Fingerprint Header Field  . . . . . . . . . . . . .   3
-   4.  Normative References  . . . . . . . . . . . . . . . . . . . .   4
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   5
+   4.  Considerations  . . . . . . . . . . . . . . . . . . . . . . .   4
+   5.  Normative References  . . . . . . . . . . . . . . . . . . . .   5
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   6
 
 1.  Introduction
 
@@ -108,7 +109,6 @@ Table of Contents
 
 
 
-
 Oku                       Expires May 15, 2016                  [Page 2]
 
 Internet-Draft          HTTP cache fingerprinting          November 2015
@@ -121,9 +121,13 @@ Internet-Draft          HTTP cache fingerprinting          November 2015
    A server MAY send the header field in a cacheable response.
 
    This document does not specify how the key should be derived.  In one
-   form, a server MAY use modulo of a hash of the URL as the key.  In
-   another form, a server MAY pre-assign a small number to every
-   resource it might push.
+   form, a server MAY use a portion of a hash of the URL concatenated
+   with the value of ETag response header as the key.  In another form,
+   a server MAY pre-assign a small number to every resource it might
+   push.
+
+   Additional considerations in making effective use of the header is
+   described in Section 4.
 
 3.  The Cache-Fingerprint Header Field
 
@@ -158,10 +162,6 @@ Internet-Draft          HTTP cache fingerprinting          November 2015
    6.  encode the first key using Golomb-Rice coding with parameter
        determined in step 4
 
-   7.  if number of collected keys is one (1), go to step 9
-
-
-
 
 
 
@@ -169,6 +169,8 @@ Oku                       Expires May 15, 2016                  [Page 3]
 
 Internet-Draft          HTTP cache fingerprinting          November 2015
 
+
+   7.  if number of collected keys is one (1), go to step 9
 
    8.  for every collected key expect for the first key, encode the
        delta from the previous key minus one (1) using Golom-Rice coding
@@ -203,7 +205,39 @@ Internet-Draft          HTTP cache fingerprinting          November 2015
    An implementation of the steps above can be found at https://
    github.com/kazuho/golombset/.
 
-4.  Normative References
+4.  Considerations
+
+   Length of "Cache-Fingerprint" header field is proportional to the
+   number of keys contained, and to log2 of the average distance between
+   the keys.
+
+   Therefore, to avoid "Cache-Fingerprint" header field from becoming
+   too long, a server SHOULD send "Cache-Fingerprint-Key" header only
+   with a response containing a resource the server needs to track the
+   cache state of.
+
+   And in case of using a hash function for deriving the value of
+   "Cache-Fingerprint-Key" header, the hash value SHOULD be truncated to
+
+
+
+Oku                       Expires May 15, 2016                  [Page 4]
+
+Internet-Draft          HTTP cache fingerprinting          November 2015
+
+
+   a small range of consecutive integers starting from zero (0) to a
+   maximum calculated as the number of resources need to be tracked
+   divided by the false positive probability.
+
+   For example, to track the cache state of 100 resources with
+   probability of 1% false positive using a hash function, the key
+   SHOULD be a remainder of the hashed value divided by 10000.  Using
+   the existing implementation, it is estimated that the length of
+   "Cache-Fingerprint" header field will be around 136 bytes when all
+   the 100 resources are cached.
+
+5.  Normative References
 
    [Golomb]   Golomb, S., "Run-length codings", IEEE Transactions on
               Information Theory 12(3) , July 1966.
@@ -217,19 +251,15 @@ Internet-Draft          HTTP cache fingerprinting          November 2015
               Encodings", RFC 4648, DOI 10.17487/RFC4648, October 2006,
               <http://www.rfc-editor.org/info/rfc4648>.
 
-
-
-
-
-Oku                       Expires May 15, 2016                  [Page 4]
-
-Internet-Draft          HTTP cache fingerprinting          November 2015
-
-
    [RFC7230]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
               Protocol (HTTP/1.1): Message Syntax and Routing", RFC
               7230, DOI 10.17487/RFC7230, June 2014,
               <http://www.rfc-editor.org/info/rfc7230>.
+
+   [RFC7232]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
+              Protocol (HTTP/1.1): Conditional Requests", RFC 7232, DOI
+              10.17487/RFC7232, June 2014,
+              <http://www.rfc-editor.org/info/rfc7232>.
 
    [RFC7540]  Belshe, M., Peon, R., and M. Thomson, Ed., "Hypertext
               Transfer Protocol Version 2 (HTTP/2)", RFC 7540, DOI
@@ -238,6 +268,19 @@ Internet-Draft          HTTP cache fingerprinting          November 2015
 
    [Rice]     Rice, R., "Some Practical Universal Noiseless Coding
               Techniques", JPL Publication 79-22 , March 1979.
+
+
+
+
+
+
+
+
+
+Oku                       Expires May 15, 2016                  [Page 5]
+
+Internet-Draft          HTTP cache fingerprinting          November 2015
+
 
 Author's Address
 
@@ -277,4 +320,17 @@ Author's Address
 
 
 
-Oku                       Expires May 15, 2016                  [Page 5]
+
+
+
+
+
+
+
+
+
+
+
+
+
+Oku                       Expires May 15, 2016                  [Page 6]

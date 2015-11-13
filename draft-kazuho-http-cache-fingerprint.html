@@ -434,7 +434,8 @@ ul.toc a:first-child {
 <link href="#rfc.section.1.1" rel="Chapter" title="1.1 Notational Conventions"/>
 <link href="#rfc.section.2" rel="Chapter" title="2 The Cache-Fingerprint-Key Header Field"/>
 <link href="#rfc.section.3" rel="Chapter" title="3 The Cache-Fingerprint Header Field"/>
-<link href="#rfc.references" rel="Chapter" title="4 Normative References"/>
+<link href="#rfc.section.4" rel="Chapter" title="4 Considerations"/>
+<link href="#rfc.references" rel="Chapter" title="5 Normative References"/>
 <link href="#rfc.authors" rel="Chapter"/>
 
 
@@ -505,7 +506,8 @@ ul.toc a:first-child {
 <li>1.1.   <a href="#rfc.section.1.1">Notational Conventions</a></li>
 <li>2.   <a href="#rfc.section.2">The Cache-Fingerprint-Key Header Field</a></li>
 <li>3.   <a href="#rfc.section.3">The Cache-Fingerprint Header Field</a></li>
-<li>4.   <a href="#rfc.references">Normative References</a></li>
+<li>4.   <a href="#rfc.section.4">Considerations</a></li>
+<li>5.   <a href="#rfc.references">Normative References</a></li>
 <li><a href="#rfc.authors">Author's Address</a></li>
 
 
@@ -528,7 +530,8 @@ ul.toc a:first-child {
   Cache-Fingerprint-Key: 12345
 </pre>
 <p id="rfc.section.2.p.3">A server MAY send the header field in a cacheable response.</p>
-<p id="rfc.section.2.p.4">This document does not specify how the key should be derived.  In one form, a server MAY use modulo of a hash of the URL as the key.  In another form, a server MAY pre-assign a small number to every resource it might push.</p>
+<p id="rfc.section.2.p.4">This document does not specify how the key should be derived.  In one form, a server MAY use a portion of a hash of the URL concatenated with the value of ETag response header as the key.  In another form, a server MAY pre-assign a small number to every resource it might push.</p>
+<p id="rfc.section.2.p.5">Additional considerations in making effective use of the header is described in <a href="#considerations">Section 4</a>.</p>
 <h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> <a href="#cache-fingerprint" id="cache-fingerprint">The Cache-Fingerprint Header Field</a></h1>
 <p id="rfc.section.3.p.1">A user agent sends an aggregation of fingerprint keys found in cached responses sent from the origin server using the &#8220;Cache-Fingerprint&#8221; header.</p>
 <pre>
@@ -562,7 +565,12 @@ ul.toc a:first-child {
   log2(maximum_value_of_collected_keys / number_of_collected_keys)
 </pre>
 <p id="rfc.section.3.p.8">An implementation of the steps above can be found at https://github.com/kazuho/golombset/.</p>
-<h1 id="rfc.references"><a href="#rfc.references">4.</a> Normative References</h1>
+<h1 id="rfc.section.4"><a href="#rfc.section.4">4.</a> <a href="#considerations" id="considerations">Considerations</a></h1>
+<p id="rfc.section.4.p.1">Length of &#8220;Cache-Fingerprint&#8221; header field is proportional to the number of keys contained, and to log2 of the average distance between the keys.</p>
+<p id="rfc.section.4.p.2">Therefore, to avoid &#8220;Cache-Fingerprint&#8221; header field from becoming too long, a server SHOULD send &#8220;Cache-Fingerprint-Key&#8221; header only with a response containing a resource the server needs to track the cache state of.</p>
+<p id="rfc.section.4.p.3">And in case of using a hash function for deriving the value of &#8220;Cache-Fingerprint-Key&#8221; header, the hash value SHOULD be truncated to a small range of consecutive integers starting from zero (0) to a maximum calculated as the number of resources need to be tracked divided by the false positive probability.</p>
+<p id="rfc.section.4.p.4">For example, to track the cache state of 100 resources with probability of 1% false positive using a hash function, the key SHOULD be a remainder of the hashed value divided by 10000.  Using the existing implementation, it is estimated that the length of &#8220;Cache-Fingerprint&#8221; header field will be around 136 bytes when all the 100 resources are cached.</p>
+<h1 id="rfc.references"><a href="#rfc.references">5.</a> Normative References</h1>
 <table>
   <tbody>
     <tr>
@@ -588,6 +596,12 @@ ul.toc a:first-child {
         <b id="RFC7230">[RFC7230]</b>
       </td>
       <td class="top"><a>Fielding, R.</a> and <a>J. Reschke</a>, "<a href="http://tools.ietf.org/html/rfc7230">Hypertext Transfer Protocol (HTTP/1.1): Message Syntax and Routing</a>", RFC 7230, DOI 10.17487/RFC7230, June 2014.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC7232">[RFC7232]</b>
+      </td>
+      <td class="top"><a>Fielding, R.</a> and <a>J. Reschke</a>, "<a href="http://tools.ietf.org/html/rfc7232">Hypertext Transfer Protocol (HTTP/1.1): Conditional Requests</a>", RFC 7232, DOI 10.17487/RFC7232, June 2014.</td>
     </tr>
     <tr>
       <td class="reference">
