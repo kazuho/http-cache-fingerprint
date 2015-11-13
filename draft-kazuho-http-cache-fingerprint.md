@@ -130,3 +130,14 @@ Or it MAY use the result of the following equation rounded to the nearest power 
 ~~~
 
 An implementation of the steps above can be found at https://github.com/kazuho/golombset/.
+
+# Considerations
+
+Length of "Cache-Fingerprint" header field is proportional to the number of keys contained, and to log2 of the average distance between the keys.
+
+Therefore, to avoid "Cache-Fingerprint" header field from becoming too long, a server SHOULD send "Cache-Fingerprint-Key" header only with a response containing a resource the server needs to track the cache state of.
+
+And in case of using a hash function for deriving the value of "Cache-Fingerprint-Key" header, the hash value SHOULD be truncated to a small range of consecutive integers starting from zero (0) to a maximum calculated as the number of resources need to be tracked divided by the false positive probability.
+
+For example, to track the cache state of 100 resources with probability of 1% false positive using a hash function, the key SHOULD be a remainder of the hashed value divided by 10000.
+Using the existing implementation, it is estimated that the length of "Cache-Fingerprint" header field will be around 136 bytes when all the 100 resources are cached.
