@@ -70,7 +70,7 @@ interpreted as described in [RFC2119].
 
 # The Cache-Fingerprint-Key Header Field {#cache-fingerprint-key}
 
-The "Cache-Fingerprint-Key" HTTP response header field describes the fingerprint key of the content as a decimal number.
+The "Cache-Fingerprint-Key" HTTP response header field describes the fingerprint key of the content as a decimal number between zero (0) and 4294967295.
 
 ~~~
   Cache-Fingerprint-Key = 1*DIGIT
