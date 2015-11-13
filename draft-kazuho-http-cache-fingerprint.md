@@ -54,9 +54,13 @@ The fingerprint can be used by the server to determine the responses it should p
 # Introduction
 
 Server push introduced in HTTP/2 [RFC7540] allows a server to speculatively send data to a client that the server anticipates the client will need.
-But it is hard to make such anticipations without the knowledge of what the client already has in its cache.
+For example, when receiving a request for an HTML document over a high-latency network, a server might want to send to the client resources that are required for rendering the HTML document (e.g. style-sheets and script files) in addition to the HTML itself in order to reduce the number of round-trips necessary for the client gathering all necessary responses.
 
-This document specifies a set of HTTP headers that can be used by the endpoints to communicate the cache state of the client, so that the server can make a good guess on what to push.
+But in case the client is already in posession of such additional resources, there is no reason to push them to the client; doing so is just waste of bandwidth and time.
+
+Therefore, it is desirable to define a method for endpoints to communicate the cache state of a client, so that a server can determine what it should push with knowledge of the peer's cache state.  This document specifies a set of HTTP headers that can be used for such purpose.
+
+By using the headers it is possible for a server to make a good guess of what is already cached on a client, and only push the responses that have not yet been cached.
 
 ## Notational Conventions
 
