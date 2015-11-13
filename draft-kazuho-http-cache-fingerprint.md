@@ -89,6 +89,8 @@ This document does not specify how the key should be derived.
 In one form, a server MAY use a portion of a hash of the URL concatenated with the value of ETag response header as the key.
 In another form, a server MAY pre-assign a small number to every resource it might push.
 
+Additional considerations in making effective use of the header is described in {{considerations}}.
+
 # The Cache-Fingerprint Header Field {#cache-fingerprint}
 
 A user agent sends an aggregation of fingerprint keys found in cached responses sent from the origin server using the "Cache-Fingerprint" header.
