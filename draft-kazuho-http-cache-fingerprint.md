@@ -84,6 +84,10 @@ An example is
 
 A server MAY send the header field in a cacheable response.
 
+This document does not specify how the key should be derived.
+In one form, a server MAY use modulo of a hash of the URL as the key.
+In another form, a server MAY pre-assign a small number to every resource it might push.
+
 # The Cache-Fingerprint Header Field {#cache-fingerprint}
 
 A user agent sends an aggregation of fingerprint keys found in cached responses sent from the origin server using the "Cache-Fingerprint" header.
