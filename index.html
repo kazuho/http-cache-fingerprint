@@ -550,7 +550,9 @@ ul.toc a:first-child {
   <li>encode the first key using Golomb-Rice coding with parameter determined in step 4</li>
   <li>if number of collected keys is one (1), go to step 9</li>
   <li>for every collected key expect for the first key, encode the delta from the previous key minus one (1) using Golom-Rice coding with parameter determined in step 4</li>
-  <li>concatenate the result of step 4, 6, 8 and encode the result using base64url <a href="#RFC4648">[RFC4648]</a>.  Padding of base64url MAY be omitted.</li>
+  <li>concatenate the result of step 4, 6, 8</li>
+  <li>if number of bits contained in the result of step 9 is not a multiple of eight (8), append a bit set until the length becomes a multiple of eight (8)</li>
+  <li>encode the result of step 10 using base64url <a href="#RFC4648">[RFC4648]</a>.  Padding of base64url MAY be omitted.</li>
 </ol>
 <p id="rfc.section.3.p.5">As an example, when none of the cached responses from the origin server contained a &#8220;Cache-Fingerprint-Key&#8221; header, then the  &#8220;Cache-Fingerprint&#8221; header field will be:</p>
 <pre>
