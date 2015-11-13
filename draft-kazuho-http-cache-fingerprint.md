@@ -111,7 +111,9 @@ When a user agent sends a "Cache-Fingerprint" header field, the value MUST be co
 6. encode the first key using Golomb-Rice coding with parameter determined in step 4
 7. if number of collected keys is one (1), go to step 9
 8. for every collected key expect for the first key, encode the delta from the previous key minus one (1) using Golom-Rice coding with parameter determined in step 4
-9. concatenate the result of step 4, 6, 8 and encode the result using base64url [RFC4648].  Padding of base64url MAY be omitted.
+9. concatenate the result of step 4, 6, 8
+10. if number of bits contained in the result of step 9 is not a multiple of eight (8), append a bit set until the length becomes a multiple of eight (8)
+11. encode the result of step 10 using base64url [RFC4648].  Padding of base64url MAY be omitted.
 
 As an example, when none of the cached responses from the origin server contained a "Cache-Fingerprint-Key" header, then the  "Cache-Fingerprint" header field will be:
 
