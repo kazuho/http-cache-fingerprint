@@ -63,20 +63,34 @@ Table of Contents
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
      1.1.  Notational Conventions  . . . . . . . . . . . . . . . . .   2
    2.  The Cache-Fingerprint-Key Header Field  . . . . . . . . . . .   2
-   3.  The Cache-Fingerprint Header Field  . . . . . . . . . . . . .   2
+   3.  The Cache-Fingerprint Header Field  . . . . . . . . . . . . .   3
    4.  Normative References  . . . . . . . . . . . . . . . . . . . .   4
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   4
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   5
 
 1.  Introduction
 
    Server push introduced in HTTP/2 [RFC7540] allows a server to
    speculatively send data to a client that the server anticipates the
-   client will need.  But it is hard to make such anticipations without
-   the knowledge of what the client already has in its cache.
+   client will need.  For example, when receiving a request for an HTML
+   document over a high-latency network, a server might want to send to
+   the client resources that are required for rendering the HTML
+   document (e.g. style-sheets and script files) in addition to the HTML
+   itself in order to reduce the number of round-trips necessary for the
+   client gathering all necessary responses.
 
-   This document specifies a set of HTTP headers that can be used by the
-   endpoints to communicate the cache state of the client, so that the
-   server can make a good guess on what to push.
+   But in case the client is already in posession of such additional
+   resources, there is no reason to push them to the client; doing so is
+   just waste of bandwidth and time.
+
+   Therefore, it is desirable to define a method for endpoints to
+   communicate the cache state of a client, so that a server can
+   determine what it should push with knowledge of the peer's cache
+   state.  This document specifies a set of HTTP headers that can be
+   used for such purpose.
+
+   By using the headers it is possible for a server to make a good guess
+   of what is already cached on a client, and only push the responses
+   that have not yet been cached.
 
 1.1.  Notational Conventions
 
@@ -93,6 +107,13 @@ Table of Contents
 
    An example is
 
+
+
+Oku                       Expires May 15, 2016                  [Page 2]
+
+Internet-Draft          HTTP cache fingerprinting          November 2015
+
+
    Cache-Fingerprint-Key: 12345
 
    A server MAY send the header field in a cacheable response.
@@ -104,15 +125,6 @@ Table of Contents
    header.
 
    Cache-Fingerprint: *( ALPHA / DIGIT / "-" / "_") *"="
-
-
-
-
-
-Oku                       Expires May 15, 2016                  [Page 2]
-
-Internet-Draft          HTTP cache fingerprinting          November 2015
-
 
    A user agent SHOULD send the header even if no response with
    fingerprint keys are being cached, as an indication to the server
@@ -148,6 +160,16 @@ Internet-Draft          HTTP cache fingerprinting          November 2015
    9.  concatenate the result of step 4, 6, 8 and encode the result
        using base64url [RFC4648].  Padding of base64url MAY be omitted.
 
+
+
+
+
+
+Oku                       Expires May 15, 2016                  [Page 3]
+
+Internet-Draft          HTTP cache fingerprinting          November 2015
+
+
    As an example, when none of the cached responses from the origin
    server contained a "Cache-Fingerprint-Key" header, then the "Cache-
    Fingerprint" header field will be:
@@ -160,15 +182,6 @@ Internet-Draft          HTTP cache fingerprinting          November 2015
    omitted.
 
    Cache-Fingerprint: Qc+J/w
-
-
-
-
-
-Oku                       Expires May 15, 2016                  [Page 3]
-
-Internet-Draft          HTTP cache fingerprinting          November 2015
-
 
    An implementation of the steps above can be found at https://
    github.com/kazuho/golombset/.
@@ -200,6 +213,19 @@ Internet-Draft          HTTP cache fingerprinting          November 2015
    [Rice]     Rice, R., "Some Practical Universal Noiseless Coding
               Techniques", JPL Publication 79-22 , March 1979.
 
+
+
+
+
+
+
+
+
+Oku                       Expires May 15, 2016                  [Page 4]
+
+Internet-Draft          HTTP cache fingerprinting          November 2015
+
+
 Author's Address
 
    Kazuho Oku
@@ -221,4 +247,34 @@ Author's Address
 
 
 
-Oku                       Expires May 15, 2016                  [Page 4]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Oku                       Expires May 15, 2016                  [Page 5]
