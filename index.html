@@ -519,7 +519,7 @@ ul.toc a:first-child {
 <h1 id="rfc.section.1.1"><a href="#rfc.section.1.1">1.1.</a> <a href="#notational-conventions" id="notational-conventions">Notational Conventions</a></h1>
 <p id="rfc.section.1.1.p.1">The key words &#8220;MUST&#8221;, &#8220;MUST NOT&#8221;, &#8220;REQUIRED&#8221;, &#8220;SHALL&#8221;, &#8220;SHALL NOT&#8221;, &#8220;SHOULD&#8221;, &#8220;SHOULD NOT&#8221;, &#8220;RECOMMENDED&#8221;, &#8220;MAY&#8221;, and &#8220;OPTIONAL&#8221; in this document are to be interpreted as described in <a href="#RFC2119">[RFC2119]</a>.</p>
 <h1 id="rfc.section.2"><a href="#rfc.section.2">2.</a> <a href="#cache-fingerprint-key" id="cache-fingerprint-key">The Cache-Fingerprint-Key Header Field</a></h1>
-<p id="rfc.section.2.p.1">The &#8220;Cache-Fingerprint-Key&#8221; HTTP response header field describes the fingerprint key of the content as a decimal number.</p>
+<p id="rfc.section.2.p.1">The &#8220;Cache-Fingerprint-Key&#8221; HTTP response header field describes the fingerprint key of the content as a decimal number between zero (0) and 4294967295.</p>
 <pre>
   Cache-Fingerprint-Key = 1*DIGIT
 </pre>
@@ -528,6 +528,7 @@ ul.toc a:first-child {
   Cache-Fingerprint-Key: 12345
 </pre>
 <p id="rfc.section.2.p.3">A server MAY send the header field in a cacheable response.</p>
+<p id="rfc.section.2.p.4">This document does not specify how the key should be derived.  In one form, a server MAY use modulo of a hash of the URL as the key.  In another form, a server MAY pre-assign a small number to every resource it might push.</p>
 <h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> <a href="#cache-fingerprint" id="cache-fingerprint">The Cache-Fingerprint Header Field</a></h1>
 <p id="rfc.section.3.p.1">A user agent sends an aggregation of fingerprint keys found in cached responses sent from the origin server using the &#8220;Cache-Fingerprint&#8221; header.</p>
 <pre>
@@ -556,7 +557,11 @@ ul.toc a:first-child {
 <pre>
   Cache-Fingerprint: Qc+J/w
 </pre>
-<p id="rfc.section.3.p.7">An implementation of the steps above can be found at https://github.com/kazuho/golombset/.</p>
+<p id="rfc.section.3.p.7">User agents MAY run the steps more than once with different values selected as the parameter used for Golomb-Rice coding, and send the shortest output as the value of the header.  Or it MAY use the result of the following equation rounded to the nearest power of two (2).  It can be shown that the parameter chosen using this equation will yield the shortest output when the keys are distributed geometrically.</p>
+<pre>
+  log2(maximum_value_of_collected_keys / number_of_collected_keys)
+</pre>
+<p id="rfc.section.3.p.8">An implementation of the steps above can be found at https://github.com/kazuho/golombset/.</p>
 <h1 id="rfc.references"><a href="#rfc.references">4.</a> Normative References</h1>
 <table>
   <tbody>

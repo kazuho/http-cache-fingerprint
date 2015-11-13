@@ -101,11 +101,11 @@ Table of Contents
 2.  The Cache-Fingerprint-Key Header Field
 
    The "Cache-Fingerprint-Key" HTTP response header field describes the
-   fingerprint key of the content as a decimal number.
+   fingerprint key of the content as a decimal number between zero (0)
+   and 4294967295.
 
    Cache-Fingerprint-Key = 1*DIGIT
 
-   An example is
 
 
 
@@ -114,9 +114,16 @@ Oku                       Expires May 15, 2016                  [Page 2]
 Internet-Draft          HTTP cache fingerprinting          November 2015
 
 
+   An example is
+
    Cache-Fingerprint-Key: 12345
 
    A server MAY send the header field in a cacheable response.
+
+   This document does not specify how the key should be derived.  In one
+   form, a server MAY use modulo of a hash of the URL as the key.  In
+   another form, a server MAY pre-assign a small number to every
+   resource it might push.
 
 3.  The Cache-Fingerprint Header Field
 
@@ -153,13 +160,6 @@ Internet-Draft          HTTP cache fingerprinting          November 2015
 
    7.  if number of collected keys is one (1), go to step 9
 
-   8.  for every collected key expect for the first key, encode the
-       delta from the previous key minus one (1) using Golom-Rice coding
-       with parameter determined in step 4
-
-   9.  concatenate the result of step 4, 6, 8 and encode the result
-       using base64url [RFC4648].  Padding of base64url MAY be omitted.
-
 
 
 
@@ -169,6 +169,13 @@ Oku                       Expires May 15, 2016                  [Page 3]
 
 Internet-Draft          HTTP cache fingerprinting          November 2015
 
+
+   8.  for every collected key expect for the first key, encode the
+       delta from the previous key minus one (1) using Golom-Rice coding
+       with parameter determined in step 4
+
+   9.  concatenate the result of step 4, 6, 8 and encode the result
+       using base64url [RFC4648].  Padding of base64url MAY be omitted.
 
    As an example, when none of the cached responses from the origin
    server contained a "Cache-Fingerprint-Key" header, then the "Cache-
@@ -182,6 +189,16 @@ Internet-Draft          HTTP cache fingerprinting          November 2015
    omitted.
 
    Cache-Fingerprint: Qc+J/w
+
+   User agents MAY run the steps more than once with different values
+   selected as the parameter used for Golomb-Rice coding, and send the
+   shortest output as the value of the header.  Or it MAY use the result
+   of the following equation rounded to the nearest power of two (2).
+   It can be shown that the parameter chosen using this equation will
+   yield the shortest output when the keys are distributed
+   geometrically.
+
+   log2(maximum_value_of_collected_keys / number_of_collected_keys)
 
    An implementation of the steps above can be found at https://
    github.com/kazuho/golombset/.
@@ -200,6 +217,15 @@ Internet-Draft          HTTP cache fingerprinting          November 2015
               Encodings", RFC 4648, DOI 10.17487/RFC4648, October 2006,
               <http://www.rfc-editor.org/info/rfc4648>.
 
+
+
+
+
+Oku                       Expires May 15, 2016                  [Page 4]
+
+Internet-Draft          HTTP cache fingerprinting          November 2015
+
+
    [RFC7230]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
               Protocol (HTTP/1.1): Message Syntax and Routing", RFC
               7230, DOI 10.17487/RFC7230, June 2014,
@@ -213,38 +239,12 @@ Internet-Draft          HTTP cache fingerprinting          November 2015
    [Rice]     Rice, R., "Some Practical Universal Noiseless Coding
               Techniques", JPL Publication 79-22 , March 1979.
 
-
-
-
-
-
-
-
-
-Oku                       Expires May 15, 2016                  [Page 4]
-
-Internet-Draft          HTTP cache fingerprinting          November 2015
-
-
 Author's Address
 
    Kazuho Oku
    DeNA Co., Ltd.
 
    Email: kazuhooku@gmail.com
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
