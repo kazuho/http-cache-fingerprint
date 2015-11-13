@@ -118,5 +118,11 @@ Or if two cached responses contained the header with values 115 and 923, the hea
   Cache-Fingerprint: Qc+J/w
 ~~~
 
+User agents MAY run the steps more than once with different values selected as the parameter used for Golomb-Rice coding, and send the shortest output as the value of the header.
+Or it MAY use the result of the following equation rounded to the nearest power of two (2).  It can be shown that the parameter chosen using this equation will yield the shortest output when the keys are distributed geometrically.
+
+~~~
+  log2(maximum_value_of_collected_keys / number_of_collected_keys)
+~~~
 
 An implementation of the steps above can be found at https://github.com/kazuho/golombset/.
