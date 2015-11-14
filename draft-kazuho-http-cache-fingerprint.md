@@ -59,7 +59,8 @@ For example, when receiving a request for an HTML document over a high-latency n
 
 But in case the client is already in posession of such additional resources, there is no reason to push them to the client; doing so is just waste of bandwidth and time.
 
-Therefore, it is desirable to define a method for endpoints to communicate the cache state of a client, so that a server can determine what it should push with knowledge of the peer's cache state.  This document specifies a set of HTTP headers that can be used for such purpose.
+Therefore, it is desirable to define a method for endpoints to communicate the cache state of a client, so that a server can determine what it should push with knowledge of the peer's cache state.
+This document specifies a set of an HTTP header and an HTTP/2 frame that can be used for such purpose.
 
 By using the headers it is possible for a server to make a good guess of what is already cached on a client, and only push the responses that have not yet been cached.
 
