@@ -62,10 +62,11 @@ Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
      1.1.  Notational Conventions  . . . . . . . . . . . . . . . . .   2
-   2.  The Cache-Fingerprint-Key Header Field  . . . . . . . . . . .   2
+   2.  The Cache-Fingerprint-Key Header Field  . . . . . . . . . . .   3
    3.  The CACHE_FINGERPRINT HTTP/2 Frame  . . . . . . . . . . . . .   3
      3.1.  Calculating the Fingerprint Field . . . . . . . . . . . .   4
    4.  Considerations  . . . . . . . . . . . . . . . . . . . . . . .   5
+     4.1.  Size of the CACHE_FINGERPRINT frame . . . . . . . . . . .   5
    5.  Normative References  . . . . . . . . . . . . . . . . . . . .   6
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   6
 
@@ -100,11 +101,10 @@ Table of Contents
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
    document are to be interpreted as described in [RFC2119].
 
-2.  The Cache-Fingerprint-Key Header Field
 
-   The "Cache-Fingerprint-Key" HTTP response header field describes the
-   fingerprint key of the content as a decimal number between zero (0)
-   and 4294967295.
+
+
+
 
 
 
@@ -113,6 +113,12 @@ Oku                       Expires May 15, 2016                  [Page 2]
 
 Internet-Draft          HTTP cache fingerprinting          November 2015
 
+
+2.  The Cache-Fingerprint-Key Header Field
+
+   The "Cache-Fingerprint-Key" HTTP response header field describes the
+   fingerprint key of the content as a decimal number between zero (0)
+   and 4294967295.
 
    Cache-Fingerprint-Key = 1*DIGIT
 
@@ -156,12 +162,6 @@ Internet-Draft          HTTP cache fingerprinting          November 2015
    methods than the current connection (e.g. when a cached response has
    been shared from a neigboring cache server).
 
-   The CACHE_FINGERPRINT frame type is 0xc (decimal 12).
-
-
-
-
-
 
 
 
@@ -169,6 +169,8 @@ Oku                       Expires May 15, 2016                  [Page 3]
 
 Internet-Draft          HTTP cache fingerprinting          November 2015
 
+
+   The CACHE_FINGERPRINT frame type is 0xc (decimal 12).
 
    +-------------------------------+-------------------------------+
    |        Origin-Len (16)        |          Origin (*)         ...
@@ -217,14 +219,14 @@ Internet-Draft          HTTP cache fingerprinting          November 2015
         delta from the previous key minus one (1) using Golom-Rice
         coding with parameter determined in step 4
 
-   9.   concatenate the result of step 4, 6, 8
-
 
 
 Oku                       Expires May 15, 2016                  [Page 4]
 
 Internet-Draft          HTTP cache fingerprinting          November 2015
 
+
+   9.   concatenate the result of step 4, 6, 8
 
    10.  if number of bits contained in the result of step 9 is not a
         multiple of eight (8), append a bit set until the length becomes
@@ -255,6 +257,8 @@ Internet-Draft          HTTP cache fingerprinting          November 2015
 
 4.  Considerations
 
+4.1.  Size of the CACHE_FINGERPRINT frame
+
    Length of the Fingerprint field of the CACHE_FINGERPRINT frame is
    proportional to the number of keys contained, and to log2 of the
    average distance between the keys.
@@ -268,10 +272,6 @@ Internet-Draft          HTTP cache fingerprinting          November 2015
    a small range of consecutive integers starting from zero (0) to a
    maximum calculated as the number of resources need to be tracked
    divided by the false positive probability.
-
-
-
-
 
 
 
