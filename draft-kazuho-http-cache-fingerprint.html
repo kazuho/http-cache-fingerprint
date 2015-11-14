@@ -433,7 +433,8 @@ ul.toc a:first-child {
 <link href="#rfc.section.1" rel="Chapter" title="1 Introduction"/>
 <link href="#rfc.section.1.1" rel="Chapter" title="1.1 Notational Conventions"/>
 <link href="#rfc.section.2" rel="Chapter" title="2 The Cache-Fingerprint-Key Header Field"/>
-<link href="#rfc.section.3" rel="Chapter" title="3 The Cache-Fingerprint Header Field"/>
+<link href="#rfc.section.3" rel="Chapter" title="3 The CACHE_FINGERPRINT HTTP/2 Frame"/>
+<link href="#rfc.section.3.1" rel="Chapter" title="3.1 Calculating the Fingerprint Field"/>
 <link href="#rfc.section.4" rel="Chapter" title="4 Considerations"/>
 <link href="#rfc.references" rel="Chapter" title="5 Normative References"/>
 <link href="#rfc.authors" rel="Chapter"/>
@@ -505,7 +506,8 @@ ul.toc a:first-child {
   	<li>1.   <a href="#rfc.section.1">Introduction</a></li>
 <li>1.1.   <a href="#rfc.section.1.1">Notational Conventions</a></li>
 <li>2.   <a href="#rfc.section.2">The Cache-Fingerprint-Key Header Field</a></li>
-<li>3.   <a href="#rfc.section.3">The Cache-Fingerprint Header Field</a></li>
+<li>3.   <a href="#rfc.section.3">The CACHE_FINGERPRINT HTTP/2 Frame</a></li>
+<li>3.1.   <a href="#rfc.section.3.1">Calculating the Fingerprint Field</a></li>
 <li>4.   <a href="#rfc.section.4">Considerations</a></li>
 <li>5.   <a href="#rfc.references">Normative References</a></li>
 <li><a href="#rfc.authors">Author's Address</a></li>
@@ -532,18 +534,31 @@ ul.toc a:first-child {
 <p id="rfc.section.2.p.3">A server MAY send the header field in a cacheable response.</p>
 <p id="rfc.section.2.p.4">This document does not specify how the key should be derived.  In one form, a server MAY use a portion of a hash of the URL concatenated with the value of ETag response header as the key.  In another form, a server MAY pre-assign a small number to every resource it might push.</p>
 <p id="rfc.section.2.p.5">Additional considerations in making effective use of the header is described in <a href="#considerations">Section 4</a>.</p>
-<h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> <a href="#cache-fingerprint" id="cache-fingerprint">The Cache-Fingerprint Header Field</a></h1>
-<p id="rfc.section.3.p.1">A user agent sends an aggregation of fingerprint keys found in cached responses sent from the origin server using the &#8220;Cache-Fingerprint&#8221; header.</p>
+<h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> <a href="#cache-fingerprint" id="cache-fingerprint">The CACHE_FINGERPRINT HTTP/2 Frame</a></h1>
+<p id="rfc.section.3.p.1">The CACHE_FINGERPRINT HTTP/2 frame (<a href="#RFC7540">[RFC7540]</a>, Section 4) indicates which responses (with &#8220;Cache-Fingerprint-Key&#8221; header fields) from same origin <a href="#RFC6454">[RFC6454]</a> are cached by the client.</p>
+<p id="rfc.section.3.p.2">The CACHE_FINGERPRINT frame is a non-critical extension to HTTP/2.  Endpoints that do not support this frame can safely ignore it.</p>
+<p id="rfc.section.3.p.3">It MUST occur on stream 0; a CACHE_FINGERPRINT frame on any other stream is invalid and MUST be ignored.  The frame does not define any flags.</p>
+<p id="rfc.section.3.p.4">When connecting to an HTTP/2 server, a user agent SHOULD send the frame before sending the first HEADERS frame for each origin the client tries to access, so that the peer can determine if the client implements this specification, and in case it does, the cache state of the client, prior to recieiving the first request to each origin.</p>
+<p id="rfc.section.3.p.5">A user agent MAY also send the frame at any later time, when it needs to notify the server it has received a cached response that originated from one of the previously specified origin using other methods than the current connection (e.g. when a cached response has been shared from a neigboring cache server).</p>
+<p id="rfc.section.3.p.6">The CACHE_FINGERPRINT frame type is 0xc (decimal 12).</p>
 <pre>
-  Cache-Fingerprint: *( ALPHA / DIGIT / "-" / "_") *"="
++-------------------------------+-------------------------------+
+|        Origin-Len (16)        |          Origin (*)         ...
++-------------------------------+-------------------------------+
+|        Fingerprint (*)      ...
++-------------------------------+
 </pre>
-<p id="rfc.section.3.p.2">A user agent SHOULD send the header even if no response with fingerprint keys are being cached, as an indication to the server that it is capable of collecting and sending a cache fingerprint.</p>
-<p id="rfc.section.3.p.3">When a user agent sends a &#8220;Cache-Fingerprint&#8221; header field, the value MUST be computed using the following steps.</p>
+<p id="rfc.section.3.p.7">The CACHE_FINGERPRINT frame MUST contain the following fields:</p>
+<p id="rfc.section.3.p.8">Origin-Len: An unsigned, 16-bit integer indicating the length, in octets, of the Origin field.</p>
+<p id="rfc.section.3.p.9">Origin: A sequence of characters containing the ASCII serialization of an origin (<a href="#RFC6454">[RFC6454]</a>, Section 6.2) to which the sent fingerprint is associated.</p>
+<p id="rfc.section.3.p.10">Fingerprint: A sequence of octets containing a list of fingerprint keys found in the cached responses sent by specified origin.  The contents of the field is specified in the following section.</p>
+<h1 id="rfc.section.3.1"><a href="#rfc.section.3.1">3.1.</a> <a href="#calculating-the-fingerprint-field" id="calculating-the-fingerprint-field">Calculating the Fingerprint Field</a></h1>
+<p id="rfc.section.3.1.p.1">The value of the Fingerprint field MUST match the output generated by the following steps:</p>
 <p/>
 
 <ol>
-  <li>collect the values of &#8220;Cache-Fingerprint-Key&#8221; header fields in the cached HTTP responses sent from the origin server to which the header field is going to be sent</li>
-  <li>if number of collected keys is zero (0), go to step 9</li>
+  <li>collect the values of &#8220;Cache-Fingerprint-Key&#8221; header fields from all the cached responses of the same origin</li>
+  <li>if number of collected keys is zero (0), go to step 10</li>
   <li>algebraically sort the collected keys</li>
   <li>determine the parameter of Golomb-Rice coding to be used <a href="#Golomb">[Golomb]</a>.<a href="#Rice">[Rice]</a>.  The value MUST be a power of two (2), between one (1) to 2147483648.</li>
   <li>calculate log2 of the parameter determined in step 4 as a 5-bit value</li>
@@ -552,26 +567,22 @@ ul.toc a:first-child {
   <li>for every collected key expect for the first key, encode the delta from the previous key minus one (1) using Golom-Rice coding with parameter determined in step 4</li>
   <li>concatenate the result of step 4, 6, 8</li>
   <li>if number of bits contained in the result of step 9 is not a multiple of eight (8), append a bit set until the length becomes a multiple of eight (8)</li>
-  <li>encode the result of step 10 using base64url <a href="#RFC4648">[RFC4648]</a>.  Padding of base64url MAY be omitted.</li>
 </ol>
-<p id="rfc.section.3.p.5">As an example, when none of the cached responses from the origin server contained a &#8220;Cache-Fingerprint-Key&#8221; header, then the  &#8220;Cache-Fingerprint&#8221; header field will be:</p>
+<p id="rfc.section.3.1.p.3">As an example, when none of the cached responses from the same origin contained a &#8220;Cache-Fingerprint-Key&#8221; header, then the output will be a zero-length octet stream.</p>
+<p id="rfc.section.3.1.p.4">Or if two cached responses contained the header with values 115 and 923, the output will be following four (4) octets if 256 was selected as the parameter for Golom-Rice coding.</p>
 <pre>
-  Cache-Fingerprint:
+41 cf 89 ff
 </pre>
-<p id="rfc.section.3.p.6">Or if two cached responses contained the header with values 115 and 923, the header field will be as follows, if 512 was selected as the parameter for Golom-Rice coding and if padding of base64url was omitted.</p>
-<pre>
-  Cache-Fingerprint: Qc+J/w
-</pre>
-<p id="rfc.section.3.p.7">User agents MAY run the steps more than once with different values selected as the parameter used for Golomb-Rice coding, and send the shortest output as the value of the header.  Or it MAY use the result of the following equation rounded to the nearest power of two (2).  It can be shown that the parameter chosen using this equation will yield the shortest output when the keys are distributed geometrically.</p>
+<p id="rfc.section.3.1.p.5">User agents MAY run the steps more than once with different values selected as the parameter used for Golomb-Rice coding, and send the shortest output as the value of the header.  Or it MAY use the result of the following equation rounded to the nearest power of two (2).  It can be shown that the parameter chosen using this equation will yield the shortest output when the keys are distributed geometrically.</p>
 <pre>
   log2(maximum_value_of_collected_keys / number_of_collected_keys)
 </pre>
-<p id="rfc.section.3.p.8">An implementation of the steps above can be found at https://github.com/kazuho/golombset/.</p>
+<p id="rfc.section.3.1.p.6">An implementation of the steps above can be found at https://github.com/kazuho/golombset/.</p>
 <h1 id="rfc.section.4"><a href="#rfc.section.4">4.</a> <a href="#considerations" id="considerations">Considerations</a></h1>
-<p id="rfc.section.4.p.1">Length of &#8220;Cache-Fingerprint&#8221; header field is proportional to the number of keys contained, and to log2 of the average distance between the keys.</p>
-<p id="rfc.section.4.p.2">Therefore, to avoid &#8220;Cache-Fingerprint&#8221; header field from becoming too long, a server SHOULD send &#8220;Cache-Fingerprint-Key&#8221; header only with a response containing a resource the server needs to track the cache state of.</p>
+<p id="rfc.section.4.p.1">Length of the Fingerprint field of the CACHE_FINGERPRINT frame is proportional to the number of keys contained, and to log2 of the average distance between the keys.</p>
+<p id="rfc.section.4.p.2">Therefore, to avoid the frame field from becoming too long, a server SHOULD send &#8220;Cache-Fingerprint-Key&#8221; header only with a response containing a resource the server needs to track the cache state of.</p>
 <p id="rfc.section.4.p.3">And in case of using a hash function for deriving the value of &#8220;Cache-Fingerprint-Key&#8221; header, the hash value SHOULD be truncated to a small range of consecutive integers starting from zero (0) to a maximum calculated as the number of resources need to be tracked divided by the false positive probability.</p>
-<p id="rfc.section.4.p.4">For example, to track the cache state of 100 resources with probability of 1% false positive using a hash function, the key SHOULD be a remainder of the hashed value divided by 10000.  Using the existing implementation, it is estimated that the length of &#8220;Cache-Fingerprint&#8221; header field will be around 136 bytes when all the 100 resources are cached.</p>
+<p id="rfc.section.4.p.4">For example, to track the cache state of 100 resources with probability of 1% false positive using a hash function, the key should be a remainder of the hashed value divided by 10000.  Using the existing implementation, it is estimated that the length of the frame field will be around 102 bytes when all the 100 resources are cached.</p>
 <h1 id="rfc.references"><a href="#rfc.references">5.</a> Normative References</h1>
 <table>
   <tbody>
@@ -589,9 +600,9 @@ ul.toc a:first-child {
     </tr>
     <tr>
       <td class="reference">
-        <b id="RFC4648">[RFC4648]</b>
+        <b id="RFC6454">[RFC6454]</b>
       </td>
-      <td class="top"><a>Josefsson, S.</a>, "<a href="http://tools.ietf.org/html/rfc4648">The Base16, Base32, and Base64 Data Encodings</a>", RFC 4648, DOI 10.17487/RFC4648, October 2006.</td>
+      <td class="top"><a>Barth, A.</a>, "<a href="http://tools.ietf.org/html/rfc6454">The Web Origin Concept</a>", RFC 6454, DOI 10.17487/RFC6454, December 2011.</td>
     </tr>
     <tr>
       <td class="reference">
