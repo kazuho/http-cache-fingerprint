@@ -90,8 +90,8 @@ Table of Contents
    Therefore, it is desirable to define a method for endpoints to
    communicate the cache state of a client, so that a server can
    determine what it should push with knowledge of the peer's cache
-   state.  This document specifies a set of HTTP headers that can be
-   used for such purpose.
+   state.  This document specifies a set of an HTTP header and an HTTP/2
+   frame that can be used for such purpose.
 
    By using the headers it is possible for a server to make a good guess
    of what is already cached on a client, and only push the responses
