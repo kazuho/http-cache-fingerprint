@@ -85,6 +85,7 @@ An example is
 ~~~
 
 A server MAY send the header field in a cacheable response.
+A server SHOULD NOT send the header field in a response not cacheable.
 
 This document does not specify how the key should be derived.
 In one form, a server MAY use a portion of a hash of the URL concatenated with the value of ETag response header as the key.
