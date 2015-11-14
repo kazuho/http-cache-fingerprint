@@ -23,6 +23,7 @@ author:
 normative:
   RFC2119:
   RFC4648:
+  RFC6454:
   RFC7230:
   RFC7232:
   RFC7540:
@@ -93,7 +94,7 @@ Additional considerations in making effective use of the header is described in 
 
 # The Cache-Fingerprint Header Field {#cache-fingerprint}
 
-A user agent sends an aggregation of fingerprint keys found in cached responses sent from the origin server using the "Cache-Fingerprint" header.
+A user agent sends an aggregation of fingerprint keys found in cached responses sent from the origin [RFC6454] using the "Cache-Fingerprint" header.
 
 ~~~
   Cache-Fingerprint: *( ALPHA / DIGIT / "-" / "_") *"="
@@ -103,7 +104,7 @@ A user agent SHOULD send the header even if no response with fingerprint keys ar
 
 When a user agent sends a "Cache-Fingerprint" header field, the value MUST be computed using the following steps.
 
-1. collect the values of "Cache-Fingerprint-Key" header fields in the cached HTTP responses sent from the origin server to which the header field is going to be sent
+1. collect the values of "Cache-Fingerprint-Key" header fields in the cached HTTP responses sent from the origin to which the header field is going to be sent
 2. if number of collected keys is zero (0), go to step 9
 3. algebraically sort the collected keys
 4. determine the parameter of Golomb-Rice coding to be used [Golomb].[Rice].  The value MUST be a power of two (2), between one (1) to 2147483648.
@@ -115,7 +116,7 @@ When a user agent sends a "Cache-Fingerprint" header field, the value MUST be co
 10. if number of bits contained in the result of step 9 is not a multiple of eight (8), append a bit set until the length becomes a multiple of eight (8)
 11. encode the result of step 10 using base64url [RFC4648].  Padding of base64url MAY be omitted.
 
-As an example, when none of the cached responses from the origin server contained a "Cache-Fingerprint-Key" header, then the  "Cache-Fingerprint" header field will be:
+As an example, when none of the cached responses from the same origin contained a "Cache-Fingerprint-Key" header, then the  "Cache-Fingerprint" header field will be:
 
 ~~~
   Cache-Fingerprint:
