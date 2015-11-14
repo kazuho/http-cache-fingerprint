@@ -158,6 +158,8 @@ An implementation of the steps above can be found at https://github.com/kazuho/g
 
 # Considerations
 
+## Size of the CACHE_FINGERPRINT frame {#cache-fingerprint-size}
+
 Length of the Fingerprint field of the CACHE_FINGERPRINT frame is proportional to the number of keys contained, and to log2 of the average distance between the keys.
 
 Therefore, to avoid the frame field from becoming too long, a server SHOULD send "Cache-Fingerprint-Key" header only with a response containing a resource the server needs to track the cache state of.
