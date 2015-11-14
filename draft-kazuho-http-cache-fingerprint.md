@@ -168,3 +168,14 @@ And in case of using a hash function for deriving the value of "Cache-Fingerprin
 
 For example, to track the cache state of 100 resources with probability of 1% false positive using a hash function, the key should be a remainder of the hashed value divided by 10000.
 Using the existing implementation, it is estimated that the length of the frame field will be around 102 bytes when all the 100 resources are cached.
+
+## Security Considerations
+
+A server MAY ignore a CACHE_FINGERPRINT frame that contains unnecessarily huge amount of keys compared to the number of elements that the server is willing to track, to prevent attackers mounting denial-of-service attacks against the server.
+
+## Privacy Considerations
+
+Value of CACHE_FINGERPRINT frames can be used by a third party monitoring the network communication for tracking a user.
+Therefore a CACHE_FINGERPRINT frame SHOULD NOT be sent over a non-encrypted HTTP/2 connection.
+
+The Values can also be used by the origin server to track users; however since there are other existing methods that can be used for the same purpose (e.g. issue different ETag for every user), introduction of the new HTTP/2 frame is not considered that it would introduce new issues regarding privacy.
