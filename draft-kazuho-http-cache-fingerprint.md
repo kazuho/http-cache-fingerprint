@@ -90,7 +90,7 @@ This document does not specify how the key should be derived.
 In one form, a server MAY use a portion of a hash of the URL concatenated with the value of ETag response header as the key.
 In another form, a server MAY pre-assign a small number to every resource it might push.
 
-Additional considerations in making effective use of the header is described in {{considerations}}.
+Additional considerations in making effective use of the header is described in {{cache-fingerprint-size}}.
 
 # The CACHE_FINGERPRINT HTTP/2 Frame {#cache-fingerprint}
 
