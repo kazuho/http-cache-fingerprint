@@ -437,6 +437,8 @@ ul.toc a:first-child {
 <link href="#rfc.section.3.1" rel="Chapter" title="3.1 Calculating the Fingerprint Field"/>
 <link href="#rfc.section.4" rel="Chapter" title="4 Considerations"/>
 <link href="#rfc.section.4.1" rel="Chapter" title="4.1 Size of the CACHE_FINGERPRINT frame"/>
+<link href="#rfc.section.4.2" rel="Chapter" title="4.2 Security Considerations"/>
+<link href="#rfc.section.4.3" rel="Chapter" title="4.3 Privacy Considerations"/>
 <link href="#rfc.references" rel="Chapter" title="5 Normative References"/>
 <link href="#rfc.authors" rel="Chapter"/>
 
@@ -511,6 +513,8 @@ ul.toc a:first-child {
 <li>3.1.   <a href="#rfc.section.3.1">Calculating the Fingerprint Field</a></li>
 <li>4.   <a href="#rfc.section.4">Considerations</a></li>
 <li>4.1.   <a href="#rfc.section.4.1">Size of the CACHE_FINGERPRINT frame</a></li>
+<li>4.2.   <a href="#rfc.section.4.2">Security Considerations</a></li>
+<li>4.3.   <a href="#rfc.section.4.3">Privacy Considerations</a></li>
 <li>5.   <a href="#rfc.references">Normative References</a></li>
 <li><a href="#rfc.authors">Author's Address</a></li>
 
@@ -586,6 +590,11 @@ ul.toc a:first-child {
 <p id="rfc.section.4.1.p.2">Therefore, to avoid the frame field from becoming too long, a server SHOULD send &#8220;Cache-Fingerprint-Key&#8221; header only with a response containing a resource the server needs to track the cache state of.</p>
 <p id="rfc.section.4.1.p.3">And in case of using a hash function for deriving the value of &#8220;Cache-Fingerprint-Key&#8221; header, the hash value SHOULD be truncated to a small range of consecutive integers starting from zero (0) to a maximum calculated as the number of resources need to be tracked divided by the false positive probability.</p>
 <p id="rfc.section.4.1.p.4">For example, to track the cache state of 100 resources with probability of 1% false positive using a hash function, the key should be a remainder of the hashed value divided by 10000.  Using the existing implementation, it is estimated that the length of the frame field will be around 102 bytes when all the 100 resources are cached.</p>
+<h1 id="rfc.section.4.2"><a href="#rfc.section.4.2">4.2.</a> <a href="#security-considerations" id="security-considerations">Security Considerations</a></h1>
+<p id="rfc.section.4.2.p.1">A server MAY ignore a CACHE_FINGERPRINT frame that contains unnecessarily huge amount of keys compared to the number of elements that the server is willing to track, to prevent attackers mounting denial-of-service attacks against the server.</p>
+<h1 id="rfc.section.4.3"><a href="#rfc.section.4.3">4.3.</a> <a href="#privacy-considerations" id="privacy-considerations">Privacy Considerations</a></h1>
+<p id="rfc.section.4.3.p.1">Value of CACHE_FINGERPRINT frames can be used by a third party monitoring the network communication for tracking a user.  Therefore a CACHE_FINGERPRINT frame SHOULD NOT be sent over a non-encrypted HTTP/2 connection.</p>
+<p id="rfc.section.4.3.p.2">The Values can also be used by the origin server to track users; however since there are other existing methods that can be used for the same purpose (e.g. issue different ETag for every user), introduction of the new HTTP/2 frame is not considered that it would introduce new issues regarding privacy.</p>
 <h1 id="rfc.references"><a href="#rfc.references">5.</a> Normative References</h1>
 <table>
   <tbody>
